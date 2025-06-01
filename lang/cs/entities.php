@@ -407,12 +407,12 @@ return [
     'comment_updated_success' => 'Komentář aktualizován',
     'comment_archive_success' => 'Komentář archivován',
     'comment_unarchive_success' => 'Komentář od-archivován',
-    'comment_view' => 'View comment',
-    'comment_jump_to_thread' => 'Jump to thread',
+    'comment_view' => 'Zobrazit komentář',
+    'comment_jump_to_thread' => 'Přejít na vlákno',
     'comment_delete_confirm' => 'Opravdu chcete odstranit tento komentář?',
     'comment_in_reply_to' => 'Odpověď na :commentId',
-    'comment_reference' => 'Reference',
-    'comment_reference_outdated' => '(Outdated)',
+    'comment_reference' => 'Odkaz',
+    'comment_reference_outdated' => '(Zastaralý)',
     'comment_editor_explain' => 'Zde jsou komentáře, které zůstaly na této stránce. Komentáře lze přidat a spravovat při prohlížení uložené stránky.',
 
     // Revision
