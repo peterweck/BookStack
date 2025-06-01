@@ -406,14 +406,14 @@ return [
     'comment_deleted_success' => 'コメントを削除しました',
     'comment_created_success' => 'コメントを追加しました',
     'comment_updated_success' => 'コメントを更新しました',
-    'comment_archive_success' => 'Comment archived',
-    'comment_unarchive_success' => 'Comment un-archived',
+    'comment_archive_success' => 'コメントをアーカイブしました',
+    'comment_unarchive_success' => 'コメントのアーカイブを解除しました',
     'comment_view' => 'View comment',
     'comment_jump_to_thread' => 'Jump to thread',
     'comment_delete_confirm' => '本当にこのコメントを削除しますか?',
     'comment_in_reply_to' => ':commentIdへ返信',
-    'comment_reference' => 'Reference',
-    'comment_reference_outdated' => '(Outdated)',
+    'comment_reference' => '参照箇所',
+    'comment_reference_outdated' => '（過去の記述）',
     'comment_editor_explain' => 'ここにはページに付けられたコメントを表示します。 コメントの追加と管理は保存されたページの表示時に行うことができます。',
 
     // Revision
