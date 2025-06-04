@@ -34,97 +34,57 @@ function positionMenu(menu: HTMLElement, toggle: HTMLElement, showAside: boolean
     }
 }
 
-export class DropDownManager {
+export function handleDropdown(options: HandleDropdownParams) {
+    const {menu, toggle, onClose, onOpen, showOnHover, showAside} = options;
+    let clickListener: Function|null = null;
 
-    protected dropdownOptions: WeakMap<HTMLElement, HandleDropdownParams> = new WeakMap();
-    protected openDropdowns: Set<HTMLElement> = new Set();
-
-    constructor() {
-        this.onMenuMouseOver = this.onMenuMouseOver.bind(this);
-
-        window.addEventListener('click', (event: MouseEvent) => {
-            const target = event.target as HTMLElement;
-            this.closeAllNotContainingElement(target);
-        });
-    }
-
-    protected closeAllNotContainingElement(element: HTMLElement): void {
-        for (const menu of this.openDropdowns) {
-            if (!menu.parentElement?.contains(element)) {
-                this.closeDropdown(menu);
-            }
-        }
-    }
-
-    protected onMenuMouseOver(event: MouseEvent): void {
-        const target = event.target as HTMLElement;
-        this.closeAllNotContainingElement(target);
-    }
-
-    /**
-     * Close all open dropdowns.
-     */
-    public closeAll(): void {
-        for (const menu of this.openDropdowns) {
-            this.closeDropdown(menu);
-        }
-    }
-
-    protected closeDropdown(menu: HTMLElement): void {
+    const hide = () => {
         menu.hidden = true;
         menu.style.removeProperty('position');
         menu.style.removeProperty('left');
         menu.style.removeProperty('top');
-
-        this.openDropdowns.delete(menu);
-        menu.removeEventListener('mouseover', this.onMenuMouseOver);
-
-        const onClose = this.getOptions(menu).onClose;
+        if (clickListener) {
+            window.removeEventListener('click', clickListener as EventListener);
+        }
         if (onClose) {
             onClose();
         }
-    }
+    };
 
-    protected openDropdown(menu: HTMLElement): void {
-        const {toggle, showAside, onOpen} = this.getOptions(menu);
+    const show = () => {
         menu.hidden = false
         positionMenu(menu, toggle, Boolean(showAside));
-
-        this.openDropdowns.add(menu);
-        menu.addEventListener('mouseover', this.onMenuMouseOver);
-
+        clickListener = (event: MouseEvent) => {
+            if (!toggle.contains(event.target as HTMLElement) && !menu.contains(event.target as HTMLElement)) {
+                hide();
+            }
+        }
+        window.addEventListener('click', clickListener as EventListener);
         if (onOpen) {
             onOpen();
         }
+    };
+
+    const toggleShowing = (event: MouseEvent) => {
+        menu.hasAttribute('hidden') ? show() : hide();
+    };
+    toggle.addEventListener('click', toggleShowing);
+    if (showOnHover) {
+        toggle.addEventListener('mouseenter', toggleShowing);
     }
 
-    protected getOptions(menu: HTMLElement): HandleDropdownParams {
-        const options = this.dropdownOptions.get(menu);
-        if (!options) {
-            throw new Error(`Can't find options for dropdown menu`);
+    menu.parentElement?.addEventListener('mouseleave', (event: MouseEvent) => {
+
+        // Prevent mouseleave hiding if withing the same bounds of the toggle.
+        // Avoids hiding in the event the mouse is interrupted by a high z-index
+        // item like a browser scrollbar.
+        const toggleBounds = toggle.getBoundingClientRect();
+        const withinX = event.clientX <= toggleBounds.right && event.clientX >= toggleBounds.left;
+        const withinY = event.clientY <= toggleBounds.bottom && event.clientY >= toggleBounds.top;
+        const withinToggle = withinX && withinY;
+
+        if (!withinToggle) {
+            hide();
         }
-
-        return options;
-    }
-
-    /**
-     * Add handling for a new dropdown.
-     */
-     public handle(options: HandleDropdownParams) {
-        const {menu, toggle, showOnHover} = options;
-
-        // Register dropdown
-        this.dropdownOptions.set(menu, options);
-
-        // Configure default events
-        const toggleShowing = (event: MouseEvent) => {
-            menu.hasAttribute('hidden') ? this.openDropdown(menu) : this.closeDropdown(menu);
-        };
-        toggle.addEventListener('click', toggleShowing);
-        if (showOnHover) {
-            toggle.addEventListener('mouseenter', () => {
-                this.openDropdown(menu);
-            });
-        }
-    }
+    });
 }

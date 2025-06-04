@@ -1,6 +1,5 @@
 <?php
 
-use BookStack\App\AppVersion;
 use BookStack\App\Model;
 use BookStack\Facades\Theme;
 use BookStack\Permissions\PermissionApplicator;
@@ -14,7 +13,12 @@ use BookStack\Users\Models\User;
  */
 function versioned_asset(string $file = ''): string
 {
-    $version = AppVersion::get();
+    static $version = null;
+
+    if (is_null($version)) {
+        $versionFile = base_path('version');
+        $version = trim(file_get_contents($versionFile));
+    }
 
     $additional = '';
     if (config('app.env') === 'development') {

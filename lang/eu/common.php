@@ -30,8 +30,6 @@ return [
     'create' => 'Sortu',
     'update' => 'Eguneratu',
     'edit' => 'Editatu',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Ordenatu',
     'move' => 'Mugitu',
     'copy' => 'Kopiatu',

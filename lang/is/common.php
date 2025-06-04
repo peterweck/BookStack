@@ -30,8 +30,6 @@ return [
     'create' => 'Búa til',
     'update' => 'Uppfæra',
     'edit' => 'Breyta',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Flokka',
     'move' => 'Færa',
     'copy' => 'Afrita',

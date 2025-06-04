@@ -2,7 +2,6 @@
 
 namespace BookStack\Api;
 
-use BookStack\App\AppVersion;
 use BookStack\Http\ApiController;
 use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException;
@@ -26,7 +25,7 @@ class ApiDocsGenerator
      */
     public static function generateConsideringCache(): Collection
     {
-        $appVersion = AppVersion::get();
+        $appVersion = trim(file_get_contents(base_path('version')));
         $cacheKey = 'api-docs::' . $appVersion;
         $isProduction = config('app.env') === 'production';
         $cacheVal = $isProduction ? Cache::get($cacheKey) : null;

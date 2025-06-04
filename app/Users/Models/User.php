@@ -45,7 +45,6 @@ use Illuminate\Support\Collection;
  * @property string     $system_name
  * @property Collection $roles
  * @property Collection $mfaValues
- * @property ?Image     $avatar
  */
 class User extends Model implements AuthenticatableContract, CanResetPasswordContract, Loggable, Sluggable
 {

@@ -9,7 +9,7 @@ class CommentTree
 {
     /**
      * The built nested tree structure array.
-     * @var CommentTreeNode[]
+     * @var array{comment: Comment, depth: int, children: array}[]
      */
     protected array $tree;
     protected array $comments;
@@ -28,7 +28,7 @@ class CommentTree
 
     public function empty(): bool
     {
-        return count($this->getActive()) === 0;
+        return count($this->tree) === 0;
     }
 
     public function count(): int
@@ -36,35 +36,9 @@ class CommentTree
         return count($this->comments);
     }
 
-    public function getActive(): array
+    public function get(): array
     {
-        return array_filter($this->tree, fn (CommentTreeNode $node) => !$node->comment->archived);
-    }
-
-    public function activeThreadCount(): int
-    {
-        return count($this->getActive());
-    }
-
-    public function getArchived(): array
-    {
-        return array_filter($this->tree, fn (CommentTreeNode $node) => $node->comment->archived);
-    }
-
-    public function archivedThreadCount(): int
-    {
-        return count($this->getArchived());
-    }
-
-    public function getCommentNodeForId(int $commentId): ?CommentTreeNode
-    {
-        foreach ($this->tree as $node) {
-            if ($node->comment->id === $commentId) {
-                return $node;
-            }
-        }
-
-        return null;
+        return $this->tree;
     }
 
     public function canUpdateAny(): bool
@@ -80,7 +54,6 @@ class CommentTree
 
     /**
      * @param Comment[] $comments
-     * @return CommentTreeNode[]
      */
     protected function createTree(array $comments): array
     {
@@ -104,22 +77,26 @@ class CommentTree
 
         $tree = [];
         foreach ($childMap[0] ?? [] as $childId) {
-            $tree[] = $this->createTreeNodeForId($childId, 0, $byId, $childMap);
+            $tree[] = $this->createTreeForId($childId, 0, $byId, $childMap);
         }
 
         return $tree;
     }
 
-    protected function createTreeNodeForId(int $id, int $depth, array &$byId, array &$childMap): CommentTreeNode
+    protected function createTreeForId(int $id, int $depth, array &$byId, array &$childMap): array
     {
         $childIds = $childMap[$id] ?? [];
         $children = [];
 
         foreach ($childIds as $childId) {
-            $children[] = $this->createTreeNodeForId($childId, $depth + 1, $byId, $childMap);
+            $children[] = $this->createTreeForId($childId, $depth + 1, $byId, $childMap);
         }
 
-        return new CommentTreeNode($byId[$id], $depth, $children);
+        return [
+            'comment' => $byId[$id],
+            'depth' => $depth,
+            'children' => $children,
+        ];
     }
 
     protected function loadComments(): array

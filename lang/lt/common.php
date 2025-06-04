@@ -30,8 +30,6 @@ return [
     'create' => 'Sukurti',
     'update' => 'Atnaujinti',
     'edit' => 'Redaguoti',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Rūšiuoti',
     'move' => 'Perkelti',
     'copy' => 'Kopijuoti',

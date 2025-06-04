@@ -30,8 +30,6 @@ return [
     'create' => 'Créer',
     'update' => 'Modifier',
     'edit' => 'Éditer',
-    'archive' => 'Archiver',
-    'unarchive' => 'Désarchiver',
     'sort' => 'Trier',
     'move' => 'Déplacer',
     'copy' => 'Copier',
