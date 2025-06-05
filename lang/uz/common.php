@@ -30,8 +30,6 @@ return [
     'create' => 'Yaratish',
     'update' => 'Yangilash',
     'edit' => 'Tahrirlash',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Saralash',
     'move' => 'Ko‘chirish',
     'copy' => 'Nusxalash',

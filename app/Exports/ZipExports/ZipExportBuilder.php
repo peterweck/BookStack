@@ -2,7 +2,6 @@
 
 namespace BookStack\Exports\ZipExports;
 
-use BookStack\App\AppVersion;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Page;
@@ -71,7 +70,7 @@ class ZipExportBuilder
         $this->data['exported_at'] = date(DATE_ATOM);
         $this->data['instance'] = [
             'id'      => setting('instance-id', ''),
-            'version' => AppVersion::get(),
+            'version' => trim(file_get_contents(base_path('version'))),
         ];
 
         $zipFile = tempnam(sys_get_temp_dir(), 'bszip-');

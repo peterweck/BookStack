@@ -2,6 +2,7 @@
 
 namespace Tests\Permissions;
 
+use BookStack\Activity\ActivityType;
 use BookStack\Activity\Models\Comment;
 use BookStack\Entities\Models\Book;
 use BookStack\Entities\Models\Bookshelf;
@@ -9,6 +10,7 @@ use BookStack\Entities\Models\Chapter;
 use BookStack\Entities\Models\Entity;
 use BookStack\Entities\Models\Page;
 use BookStack\Uploads\Image;
+use BookStack\Users\Models\Role;
 use BookStack\Users\Models\User;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -150,14 +152,10 @@ class RolePermissionsTest extends TestCase
     /**
      * Check a standard entity access permission.
      */
-    private function checkAccessPermission(
-        string $permission,
-        array $accessUrls = [],
-        array $visibles = [],
-        string $expectedRedirectUri = '/',
-    ) {
+    private function checkAccessPermission(string $permission, array $accessUrls = [], array $visibles = [])
+    {
         foreach ($accessUrls as $url) {
-            $this->actingAs($this->user)->get($url)->assertRedirect($expectedRedirectUri);
+            $this->actingAs($this->user)->get($url)->assertRedirect('/');
         }
 
         foreach ($visibles as $url => $text) {
@@ -537,11 +535,11 @@ class RolePermissionsTest extends TestCase
             $ownPage->getUrl() . '/edit',
         ], [
             $ownPage->getUrl() => 'Edit',
-        ], $ownPage->getUrl());
+        ]);
 
         $resp = $this->get($otherPage->getUrl());
         $this->withHtml($resp)->assertElementNotContains('.action-buttons', 'Edit');
-        $this->get($otherPage->getUrl() . '/edit')->assertRedirect($otherPage->getUrl());
+        $this->get($otherPage->getUrl() . '/edit')->assertRedirect('/');
     }
 
     public function test_page_edit_all_permission()
@@ -552,7 +550,7 @@ class RolePermissionsTest extends TestCase
             $otherPage->getUrl('/edit'),
         ], [
             $otherPage->getUrl() => 'Edit',
-        ], $otherPage->getUrl());
+        ]);
     }
 
     public function test_page_delete_own_permission()

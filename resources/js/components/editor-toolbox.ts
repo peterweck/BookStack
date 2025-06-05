@@ -1,58 +1,42 @@
 import {Component} from './component';
 
-export interface EditorToolboxChangeEventData {
-    tab: string;
-    open: boolean;
-}
-
 export class EditorToolbox extends Component {
-
-    protected container!: HTMLElement;
-    protected buttons!: HTMLButtonElement[];
-    protected contentElements!: HTMLElement[];
-    protected toggleButton!: HTMLElement;
-    protected editorWrapEl!: HTMLElement;
-
-    protected open: boolean = false;
-    protected tab: string = '';
 
     setup() {
         // Elements
         this.container = this.$el;
-        this.buttons = this.$manyRefs.tabButton as HTMLButtonElement[];
+        this.buttons = this.$manyRefs.tabButton;
         this.contentElements = this.$manyRefs.tabContent;
         this.toggleButton = this.$refs.toggle;
-        this.editorWrapEl = this.container.closest('.page-editor') as HTMLElement;
+        this.editorWrapEl = this.container.closest('.page-editor');
 
         this.setupListeners();
 
         // Set the first tab as active on load
-        this.setActiveTab(this.contentElements[0].dataset.tabContent || '');
+        this.setActiveTab(this.contentElements[0].dataset.tabContent);
     }
 
-    protected setupListeners(): void {
+    setupListeners() {
         // Toolbox toggle button click
         this.toggleButton.addEventListener('click', () => this.toggle());
         // Tab button click
-        this.container.addEventListener('click', (event: MouseEvent) => {
-            const button = (event.target as HTMLElement).closest('button');
-            if (button instanceof HTMLButtonElement && this.buttons.includes(button)) {
-                const name = button.dataset.tab || '';
+        this.container.addEventListener('click', event => {
+            const button = event.target.closest('button');
+            if (this.buttons.includes(button)) {
+                const name = button.dataset.tab;
                 this.setActiveTab(name, true);
             }
         });
     }
 
-    protected toggle(): void {
+    toggle() {
         this.container.classList.toggle('open');
         const isOpen = this.container.classList.contains('open');
         this.toggleButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         this.editorWrapEl.classList.toggle('toolbox-open', isOpen);
-        this.open = isOpen;
-        this.emitState();
     }
 
-    protected setActiveTab(tabName: string, openToolbox: boolean = false): void {
+    setActiveTab(tabName, openToolbox = false) {
         // Set button visibility
         for (const button of this.buttons) {
             button.classList.remove('active');
@@ -70,14 +54,6 @@ export class EditorToolbox extends Component {
         if (openToolbox && !this.container.classList.contains('open')) {
             this.toggle();
         }
-
-        this.tab = tabName;
-        this.emitState();
-    }
-
-    protected emitState(): void {
-        const data: EditorToolboxChangeEventData = {tab: this.tab, open: this.open};
-        this.$emit('change', data);
     }
 
 }

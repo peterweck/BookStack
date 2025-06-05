@@ -71,7 +71,6 @@ import {TableDOMTable, TableObserver} from './LexicalTableObserver';
 import {$isTableRowNode} from './LexicalTableRowNode';
 import {$isTableSelection} from './LexicalTableSelection';
 import {$computeTableMap, $getNodeTriplet} from './LexicalTableUtils';
-import {$selectOrCreateAdjacent} from "../../utils/nodes";
 
 const LEXICAL_ELEMENT_KEY = '__lexicalTableSelection';
 
@@ -916,14 +915,9 @@ export function getTable(tableElement: HTMLElement): TableDOMTable {
   domRows.length = 0;
 
   while (currentNode != null) {
-    const nodeName = currentNode.nodeName;
+    const nodeMame = currentNode.nodeName;
 
-    if (nodeName === 'COLGROUP' || nodeName === 'CAPTION') {
-      currentNode = currentNode.nextSibling;
-      continue;
-    }
-
-    if (nodeName === 'TD' || nodeName === 'TH') {
+    if (nodeMame === 'TD' || nodeMame === 'TH') {
       const elem = currentNode as HTMLElement;
       const cell = {
         elem,
@@ -1114,7 +1108,7 @@ const selectTableNodeInDirection = (
           false,
         );
       } else {
-        $selectOrCreateAdjacent(tableNode, false);
+        tableNode.selectPrevious();
       }
 
       return true;
@@ -1126,7 +1120,7 @@ const selectTableNodeInDirection = (
           true,
         );
       } else {
-        $selectOrCreateAdjacent(tableNode, true);
+        tableNode.selectNext();
       }
 
       return true;

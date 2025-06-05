@@ -1,9 +1,7 @@
 import {HttpError} from "./http";
 
-type Listener = (data: any) => void;
-
 export class EventManager {
-    protected listeners: Record<string, Listener[]> = {};
+    protected listeners: Record<string, ((data: any) => void)[]> = {};
     protected stack: {name: string, data: {}}[] = [];
 
     /**
@@ -24,17 +22,6 @@ export class EventManager {
     listen<T>(eventName: string, callback: (data: T) => void): void {
         if (typeof this.listeners[eventName] === 'undefined') this.listeners[eventName] = [];
         this.listeners[eventName].push(callback);
-    }
-
-    /**
-     * Remove an event listener which is using the given callback for the given event name.
-     */
-    remove(eventName: string, callback: Listener): void {
-        const listeners = this.listeners[eventName] || [];
-        const index = listeners.indexOf(callback);
-        if (index !== -1) {
-            listeners.splice(index, 1);
-        }
     }
 
     /**
@@ -66,7 +53,8 @@ export class EventManager {
     /**
      * Notify of standard server-provided validation errors.
      */
-    showValidationErrors(responseErr: HttpError): void {
+    showValidationErrors(responseErr: {status?: number, data?: object}): void {
+        if (!responseErr.status) return;
         if (responseErr.status === 422 && responseErr.data) {
             const message = Object.values(responseErr.data).flat().join('\n');
             this.error(message);

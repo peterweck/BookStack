@@ -17,7 +17,6 @@ use BookStack\Entities\Tools\PageContent;
 use BookStack\Entities\Tools\PageEditActivity;
 use BookStack\Entities\Tools\PageEditorData;
 use BookStack\Exceptions\NotFoundException;
-use BookStack\Exceptions\NotifyException;
 use BookStack\Exceptions\PermissionsException;
 use BookStack\Http\Controller;
 use BookStack\References\ReferenceFetcher;
@@ -197,7 +196,7 @@ class PageController extends Controller
     public function edit(Request $request, string $bookSlug, string $pageSlug)
     {
         $page = $this->queries->findVisibleBySlugsOrFail($bookSlug, $pageSlug);
-        $this->checkOwnablePermission('page-update', $page, $page->getUrl());
+        $this->checkOwnablePermission('page-update', $page);
 
         $editorData = new PageEditorData($page, $this->entityQueries, $request->query('editor', ''));
         if ($editorData->getWarnings()) {

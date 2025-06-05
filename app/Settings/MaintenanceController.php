@@ -3,7 +3,6 @@
 namespace BookStack\Settings;
 
 use BookStack\Activity\ActivityType;
-use BookStack\App\AppVersion;
 use BookStack\Entities\Tools\TrashCan;
 use BookStack\Http\Controller;
 use BookStack\References\ReferenceStore;
@@ -20,11 +19,14 @@ class MaintenanceController extends Controller
         $this->checkPermission('settings-manage');
         $this->setPageTitle(trans('settings.maint'));
 
+        // Get application version
+        $version = trim(file_get_contents(base_path('version')));
+
         // Recycle bin details
         $recycleStats = $trashCan->getTrashedCounts();
 
         return view('settings.maintenance', [
-            'version'      => AppVersion::get(),
+            'version'      => $version,
             'recycleStats' => $recycleStats,
         ]);
     }

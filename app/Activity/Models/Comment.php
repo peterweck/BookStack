@@ -19,8 +19,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int      $entity_id
  * @property int      $created_by
  * @property int      $updated_by
- * @property string   $content_ref
- * @property bool     $archived
  */
 class Comment extends Model implements Loggable
 {

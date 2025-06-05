@@ -30,8 +30,6 @@ return [
     'create' => 'Luo',
     'update' => 'Päivitä',
     'edit' => 'Muokkaa',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Järjestä',
     'move' => 'Siirrä',
     'copy' => 'Kopioi',

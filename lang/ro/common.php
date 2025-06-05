@@ -30,8 +30,6 @@ return [
     'create' => 'Crează',
     'update' => 'Actualzează',
     'edit' => 'Editează',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Sortează',
     'move' => 'Mută',
     'copy' => 'Copiază',

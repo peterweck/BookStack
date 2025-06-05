@@ -30,8 +30,6 @@ return [
     'create' => 'Létrehozás',
     'update' => 'Frissítés',
     'edit' => 'Szerkesztés',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Rendezés',
     'move' => 'Áthelyezés',
     'copy' => 'Másolás',

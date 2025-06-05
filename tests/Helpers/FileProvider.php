@@ -61,14 +61,6 @@ class FileProvider
     }
 
     /**
-     * Get raw data for a Jpeg image test file.
-     */
-    public function jpegImageData(): string
-    {
-        return file_get_contents($this->testFilePath('test-image.jpg'));
-    }
-
-    /**
      * Get the expected relative path for an uploaded image of the given type and filename.
      */
     public function expectedImagePath(string $imageType, string $fileName): string

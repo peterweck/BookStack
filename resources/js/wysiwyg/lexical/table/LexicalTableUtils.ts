@@ -35,7 +35,6 @@ import {
   TableRowNode,
 } from './LexicalTableRowNode';
 import {$isTableSelection} from './LexicalTableSelection';
-import {$isCaptionNode} from "@lexical/table/LexicalCaptionNode";
 
 export function $createTableNodeWithDimensions(
   rowCount: number,
@@ -780,7 +779,7 @@ export function $computeTableMapSkipCellCheck(
     return tableMap[row] === undefined || tableMap[row][column] === undefined;
   }
 
-  const gridChildren = grid.getChildren().filter(node => !$isCaptionNode(node));
+  const gridChildren = grid.getChildren();
   for (let i = 0; i < gridChildren.length; i++) {
     const row = gridChildren[i];
     invariant(
