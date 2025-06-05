@@ -2,7 +2,6 @@
 
 namespace BookStack\Exceptions;
 
-use BookStack\App\AppVersion;
 use Illuminate\Contracts\Foundation\ExceptionRenderer;
 
 class BookStackExceptionHandlerPage implements ExceptionRenderer
@@ -31,7 +30,9 @@ class BookStackExceptionHandlerPage implements ExceptionRenderer
         return [
             'PHP Version'       => phpversion(),
             'BookStack Version' => $this->safeReturn(function () {
-                return AppVersion::get();
+                $versionFile = base_path('version');
+
+                return trim(file_get_contents($versionFile));
             }, 'unknown'),
             'Theme Configured' => $this->safeReturn(function () {
                 return config('view.theme');

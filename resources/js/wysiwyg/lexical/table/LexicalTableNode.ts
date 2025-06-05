@@ -30,13 +30,12 @@ import {TableDOMCell, TableDOMTable} from './LexicalTableObserver';
 import {getTable} from './LexicalTableSelectionHelpers';
 import {CommonBlockNode, copyCommonBlockProperties, SerializedCommonBlockNode} from "lexical/nodes/CommonBlockNode";
 import {
-  applyCommonPropertyChanges,
   commonPropertiesDifferent, deserializeCommonBlockNode,
   setCommonBlockPropsFromElement,
   updateElementWithCommonBlockProps
 } from "lexical/nodes/common";
 import {el, extractStyleMapFromElement, StyleMap} from "../../utils/dom";
-import {buildColgroupFromTableWidths, getTableColumnWidths} from "../../utils/tables";
+import {getTableColumnWidths} from "../../utils/tables";
 
 export type SerializedTableNode = Spread<{
   colWidths: string[];
@@ -55,7 +54,7 @@ export class TableNode extends CommonBlockNode {
   static clone(node: TableNode): TableNode {
     const newNode = new TableNode(node.__key);
     copyCommonBlockProperties(node, newNode);
-    newNode.__colWidths = [...node.__colWidths];
+    newNode.__colWidths = node.__colWidths;
     newNode.__styles = new Map(node.__styles);
     return newNode;
   }
@@ -99,8 +98,15 @@ export class TableNode extends CommonBlockNode {
     updateElementWithCommonBlockProps(tableElement, this);
 
     const colWidths = this.getColWidths();
-    const colgroup = buildColgroupFromTableWidths(colWidths);
-    if (colgroup) {
+    if (colWidths.length > 0) {
+      const colgroup = el('colgroup');
+      for (const width of colWidths) {
+        const col = el('col');
+        if (width) {
+          col.style.width = width;
+        }
+        colgroup.append(col);
+      }
       tableElement.append(colgroup);
     }
 
@@ -111,29 +117,11 @@ export class TableNode extends CommonBlockNode {
     return tableElement;
   }
 
-  updateDOM(_prevNode: TableNode, dom: HTMLElement): boolean {
-    applyCommonPropertyChanges(_prevNode, this, dom);
-
-    if (this.__colWidths.join(':') !== _prevNode.__colWidths.join(':')) {
-      const existingColGroup = Array.from(dom.children).find(child => child.nodeName === 'COLGROUP');
-      const newColGroup = buildColgroupFromTableWidths(this.__colWidths);
-      if (existingColGroup) {
-        existingColGroup.remove();
-      }
-
-      if (newColGroup) {
-        dom.prepend(newColGroup);
-      }
-    }
-
-    if (Array.from(this.__styles.values()).join(':') !== Array.from(_prevNode.__styles.values()).join(':')) {
-      dom.style.cssText = '';
-      for (const [name, value] of this.__styles.entries()) {
-        dom.style.setProperty(name, value);
-      }
-    }
-
-    return false;
+  updateDOM(_prevNode: TableNode): boolean {
+    return commonPropertiesDifferent(_prevNode, this)
+      || this.__colWidths.join(':') !== _prevNode.__colWidths.join(':')
+      || this.__styles.size !== _prevNode.__styles.size
+      || (Array.from(this.__styles.values()).join(':') !== (Array.from(_prevNode.__styles.values()).join(':')));
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
@@ -181,7 +169,7 @@ export class TableNode extends CommonBlockNode {
 
   getColWidths(): string[] {
     const self = this.getLatest();
-    return [...self.__colWidths];
+    return self.__colWidths;
   }
 
   getStyles(): StyleMap {

@@ -30,8 +30,6 @@ return [
     'create' => 'Crea',
     'update' => 'Actualitza',
     'edit' => 'Edita',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Ordena',
     'move' => 'Mou',
     'copy' => 'Copia',

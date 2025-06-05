@@ -30,8 +30,6 @@ return [
     'create' => 'Tạo',
     'update' => 'Cập nhật',
     'edit' => 'Sửa',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Sắp xếp',
     'move' => 'Di chuyển',
     'copy' => 'Sao chép',

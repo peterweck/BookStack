@@ -356,14 +356,4 @@ class PageTest extends TestCase
         $resp = $this->get('/');
         $this->withHtml($resp)->assertElementContains('#recently-updated-pages', $page->name);
     }
-
-    public function test_page_edit_without_update_permissions_but_with_view_redirects_to_page()
-    {
-        $page = $this->entities->page();
-
-        $resp = $this->asViewer()->get($page->getUrl('/edit'));
-        $resp->assertRedirect($page->getUrl());
-
-        $resp->assertSessionHas('error', 'You do not have permission to access the requested page.');
-    }
 }

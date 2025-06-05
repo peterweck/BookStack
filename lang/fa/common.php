@@ -30,8 +30,6 @@ return [
     'create' => 'ایجاد',
     'update' => 'به‌روز رسانی',
     'edit' => 'ويرايش',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'مرتب سازی',
     'move' => 'جابجایی',
     'copy' => 'کپی',

@@ -1,38 +1,24 @@
-import * as DOM from '../services/dom';
+import * as DOM from '../services/dom.ts';
 import {Component} from './component';
-import {copyTextToClipboard} from '../services/clipboard';
-import {hashElement, normalizeNodeTextOffsetToParent} from "../services/dom";
-import {PageComments} from "./page-comments";
+import {copyTextToClipboard} from '../services/clipboard.ts';
 
 export class Pointer extends Component {
 
-    protected showing: boolean = false;
-    protected isMakingSelection: boolean = false;
-    protected targetElement: HTMLElement|null = null;
-    protected targetSelectionRange: Range|null = null;
-
-    protected pointer!: HTMLElement;
-    protected linkInput!: HTMLInputElement;
-    protected linkButton!: HTMLElement;
-    protected includeInput!: HTMLInputElement;
-    protected includeButton!: HTMLElement;
-    protected sectionModeButton!: HTMLElement;
-    protected commentButton!: HTMLElement;
-    protected modeToggles!: HTMLElement[];
-    protected modeSections!: HTMLElement[];
-    protected pageId!: string;
-
     setup() {
+        this.container = this.$el;
         this.pointer = this.$refs.pointer;
-        this.linkInput = this.$refs.linkInput as HTMLInputElement;
+        this.linkInput = this.$refs.linkInput;
         this.linkButton = this.$refs.linkButton;
-        this.includeInput = this.$refs.includeInput as HTMLInputElement;
+        this.includeInput = this.$refs.includeInput;
         this.includeButton = this.$refs.includeButton;
         this.sectionModeButton = this.$refs.sectionModeButton;
-        this.commentButton = this.$refs.commentButton;
         this.modeToggles = this.$manyRefs.modeToggle;
         this.modeSections = this.$manyRefs.modeSection;
         this.pageId = this.$opts.pageId;
+
+        // Instance variables
+        this.showing = false;
+        this.isSelection = false;
 
         this.setupListeners();
     }
@@ -44,7 +30,7 @@ export class Pointer extends Component {
 
         // Select all contents on input click
         DOM.onSelect([this.includeInput, this.linkInput], event => {
-            (event.target as HTMLInputElement).select();
+            event.target.select();
             event.stopPropagation();
         });
 
@@ -55,7 +41,7 @@ export class Pointer extends Component {
 
         // Hide pointer when clicking away
         DOM.onEvents(document.body, ['click', 'focus'], () => {
-            if (!this.showing || this.isMakingSelection) return;
+            if (!this.showing || this.isSelection) return;
             this.hidePointer();
         });
 
@@ -66,10 +52,9 @@ export class Pointer extends Component {
         const pageContent = document.querySelector('.page-content');
         DOM.onEvents(pageContent, ['mouseup', 'keyup'], event => {
             event.stopPropagation();
-            const targetEl = (event.target as HTMLElement).closest('[id^="bkmrk"]');
-            if (targetEl instanceof HTMLElement && (window.getSelection() || '').toString().length > 0) {
-                const xPos = (event instanceof MouseEvent) ? event.pageX : 0;
-                this.showPointerAtTarget(targetEl, xPos, false);
+            const targetEl = event.target.closest('[id^="bkmrk"]');
+            if (targetEl && window.getSelection().toString().length > 0) {
+                this.showPointerAtTarget(targetEl, event.pageX, false);
             }
         });
 
@@ -78,35 +63,28 @@ export class Pointer extends Component {
 
         // Toggle between pointer modes
         DOM.onSelect(this.modeToggles, event => {
-            const targetToggle = (event.target as HTMLElement);
             for (const section of this.modeSections) {
-                const show = !section.contains(targetToggle);
+                const show = !section.contains(event.target);
                 section.toggleAttribute('hidden', !show);
             }
 
-            const otherToggle = this.modeToggles.find(b => b !== targetToggle);
-            otherToggle && otherToggle.focus();
+            this.modeToggles.find(b => b !== event.target).focus();
         });
-
-        if (this.commentButton) {
-            DOM.onSelect(this.commentButton, this.createCommentAtPointer.bind(this));
-        }
     }
 
     hidePointer() {
-        this.pointer.style.removeProperty('display');
+        this.pointer.style.display = null;
         this.showing = false;
-        this.targetElement = null;
-        this.targetSelectionRange = null;
     }
 
     /**
      * Move and display the pointer at the given element, targeting the given screen x-position if possible.
+     * @param {Element} element
+     * @param {Number} xPosition
+     * @param {Boolean} keyboardMode
      */
-    showPointerAtTarget(element: HTMLElement, xPosition: number, keyboardMode: boolean) {
-        this.targetElement = element;
-        this.targetSelectionRange = window.getSelection()?.getRangeAt(0) || null;
-        this.updateDomForTarget(element);
+    showPointerAtTarget(element, xPosition, keyboardMode) {
+        this.updateForTarget(element);
 
         this.pointer.style.display = 'block';
         const targetBounds = element.getBoundingClientRect();
@@ -120,18 +98,18 @@ export class Pointer extends Component {
         this.pointer.style.top = `${yOffset}px`;
 
         this.showing = true;
-        this.isMakingSelection = true;
+        this.isSelection = true;
 
         setTimeout(() => {
-            this.isMakingSelection = false;
+            this.isSelection = false;
         }, 100);
 
         const scrollListener = () => {
             this.hidePointer();
-            window.removeEventListener('scroll', scrollListener);
+            window.removeEventListener('scroll', scrollListener, {passive: true});
         };
 
-        element.parentElement?.insertBefore(this.pointer, element);
+        element.parentElement.insertBefore(this.pointer, element);
         if (!keyboardMode) {
             window.addEventListener('scroll', scrollListener, {passive: true});
         }
@@ -139,8 +117,9 @@ export class Pointer extends Component {
 
     /**
      * Update the pointer inputs/content for the given target element.
+     * @param {?Element} element
      */
-    updateDomForTarget(element: HTMLElement) {
+    updateForTarget(element) {
         const permaLink = window.baseUrl(`/link/${this.pageId}#${element.id}`);
         const includeTag = `{{@${this.pageId}#${element.id}}}`;
 
@@ -149,18 +128,18 @@ export class Pointer extends Component {
 
         // Update anchor if present
         const editAnchor = this.pointer.querySelector('#pointer-edit');
-        if (editAnchor instanceof HTMLAnchorElement && element) {
+        if (editAnchor && element) {
             const {editHref} = editAnchor.dataset;
             const elementId = element.id;
 
             // Get the first 50 characters.
-            const queryContent = (element.textContent || '').substring(0, 50);
+            const queryContent = element.textContent && element.textContent.substring(0, 50);
             editAnchor.href = `${editHref}?content-id=${elementId}&content-text=${encodeURIComponent(queryContent)}`;
         }
     }
 
     enterSectionSelectMode() {
-        const sections = Array.from(document.querySelectorAll('.page-content [id^="bkmrk"]')) as HTMLElement[];
+        const sections = Array.from(document.querySelectorAll('.page-content [id^="bkmrk"]'));
         for (const section of sections) {
             section.setAttribute('tabindex', '0');
         }
@@ -168,39 +147,9 @@ export class Pointer extends Component {
         sections[0].focus();
 
         DOM.onEnterPress(sections, event => {
-            this.showPointerAtTarget(event.target as HTMLElement, 0, true);
+            this.showPointerAtTarget(event.target, 0, true);
             this.pointer.focus();
         });
-    }
-
-    createCommentAtPointer() {
-        if (!this.targetElement) {
-            return;
-        }
-
-        const refId = this.targetElement.id;
-        const hash = hashElement(this.targetElement);
-        let range = '';
-        if (this.targetSelectionRange) {
-            const commonContainer = this.targetSelectionRange.commonAncestorContainer;
-            if (this.targetElement.contains(commonContainer)) {
-                const start = normalizeNodeTextOffsetToParent(
-                    this.targetSelectionRange.startContainer,
-                    this.targetSelectionRange.startOffset,
-                    this.targetElement
-                );
-                const end = normalizeNodeTextOffsetToParent(
-                    this.targetSelectionRange.endContainer,
-                    this.targetSelectionRange.endOffset,
-                    this.targetElement
-                );
-                range = `${start}-${end}`;
-            }
-        }
-
-        const reference = `${refId}:${hash}:${range}`;
-        const pageComments = window.$components.first('page-comments') as PageComments;
-        pageComments.startNewComment(reference);
     }
 
 }

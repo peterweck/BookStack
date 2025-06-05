@@ -30,8 +30,6 @@ return [
     'create' => 'Създаване',
     'update' => 'Обновяване',
     'edit' => 'Редактиране',
-    'archive' => 'Archive',
-    'unarchive' => 'Un-Archive',
     'sort' => 'Сортиране',
     'move' => 'Преместване',
     'copy' => 'Копиране',
